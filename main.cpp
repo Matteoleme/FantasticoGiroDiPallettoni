@@ -4,7 +4,7 @@
 #include<ctime>
 #include <unistd.h>
 #include <cstdlib>
-
+#include <math.h>
 
 using namespace std;
 
@@ -41,9 +41,13 @@ void inizializzaVite(Partita &partita, int vite);
 
 void inizializzaRound(Partita &partita, int colpi);
 
-void caricaFucile(Fucile fucile);
+void caricaFucile(Fucile &fucile);
 
 bool giaInserito(int indici[], int dim, int randomico);
+
+void stampaProiettili(Fucile fucile);
+
+void stampaCaricatore(bool* caricatore, int d);
 
 int main(){
 	// inizializzazione partita
@@ -64,8 +68,14 @@ int main(){
 
 	// La partita termina
 	int round = 1;
+	int buffer;
 	do{
 		inizializzaRound(partita, round+2);
+		round++;
+		stampaCaricatore(partita.fucile.caricatore, partita.fucile.colpiTotali);
+		cin >> buffer;
+
+		free(partita.fucile.caricatore);
 	}while(partita.player.vita > 0 && partita.ai.vita > 0);
 	
 	return 0;
@@ -103,7 +113,11 @@ void inizializzaVite(Partita &partita, int vite){
 void inizializzaRound(Partita &partita, int colpi){
 	// in questa funzione devo caricare il fucile 
 	partita.fucile.caricatore = (bool*) malloc(sizeof(bool)*colpi);
-	caricaFucile(partita.fucile);
+	partita.fucile.colpiTotali = colpi;
+	caricaFucile(partita.fucile);		// Ora il fucile è carico
+
+	stampaProiettili(partita.fucile);
+	// Eventuale scelta di gadget
 }
 
 void caricaFucile(Fucile &fucile){
@@ -115,11 +129,12 @@ void caricaFucile(Fucile &fucile){
 	// carico l'array con i colpi in modo deterministico e poi dopo li mischio casualmente
 	
 	for(int i=0; i<colpi; i++){
-		if(i<=(colpi/2))
+		if(i<ceil(colpi/2))
 			deterministico[i] = false;
 		else
 			deterministico[i] = true;
 	}
+	fucile.colpiVeri = fucile.colpiTotali - (colpi/2);		// serve per stampare quanti colpi ho a salve e veri
 
 	// inizializzo l'array degli indici
 	int indici[colpi];
@@ -141,11 +156,20 @@ bool giaInserito(int indici[], int dim, int randomico){
 		if(indici[i]==randomico)
 			return true;
 	}
+	return false;
 }
 
 
+void stampaProiettili(Fucile fucile){
+	cout << "Proiettili totali: " << fucile.colpiTotali << endl;
+	cout << "     veri: " << fucile.colpiVeri << endl;
+	cout << "     a salve: " << fucile.colpiTotali - fucile.colpiVeri << endl;
+}
 
 
-
-
-
+void stampaCaricatore(bool* caricatore, int d){
+	for(int i=0; i<d; i++){
+		cout << "[" << caricatore[i] << "]";
+	}
+	cout << endl;
+}
