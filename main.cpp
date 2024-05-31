@@ -3,6 +3,7 @@
 #include<cstdio>
 #include<ctime>
 #include <unistd.h>
+#include <cstdlib>
 
 
 using namespace std;
@@ -14,7 +15,9 @@ struct Giocatore{
 
 struct Fucile{
 	bool* caricatore;			// ricordati di allocare memoria altrimenti crasha
-	int colpiSparati = 0;		// lo devi incrementare ogni colpo
+	int colpiTotali;
+	//int colpiSparati = 0;		// lo devi incrementare ogni colpo
+	int colpiVeri;
 };
 
 struct Partita{
@@ -38,12 +41,16 @@ void inizializzaVite(Partita &partita, int vite);
 
 void inizializzaRound(Partita &partita, int colpi);
 
-void caricaFucile(bool *caricatore, int colpi);
+void caricaFucile(Fucile fucile);
+
+bool giaInserito(int indici[], int dim, int randomico);
 
 int main(){
 	// inizializzazione partita
 	Partita partita;
 	stampaBenvenuto();
+	// inizializzo il seed
+	srand(time(0));
 	// inizializzazione giocatori
 	Giocatore noi;
 	Giocatore computer;
@@ -96,12 +103,13 @@ void inizializzaVite(Partita &partita, int vite){
 void inizializzaRound(Partita &partita, int colpi){
 	// in questa funzione devo caricare il fucile 
 	partita.fucile.caricatore = (bool*) malloc(sizeof(bool)*colpi);
-	caricaFucile(partita.fucile.caricatore, colpi);
+	caricaFucile(partita.fucile);
 }
 
-void caricaFucile(bool* caricatore, int colpi){
+void caricaFucile(Fucile &fucile){
 	// prendo in input un array già allocato di n elementi
-
+	bool *caricatore = fucile.caricatore;
+	int colpi = fucile.colpiTotali;
 	// prima creo un fucile "deterministico"
 	bool* deterministico = (bool*) malloc(sizeof(bool)*colpi);
 	// carico l'array con i colpi in modo deterministico e poi dopo li mischio casualmente
@@ -113,9 +121,31 @@ void caricaFucile(bool* caricatore, int colpi){
 			deterministico[i] = true;
 	}
 
+	// inizializzo l'array degli indici
+	int indici[colpi];
 	// adesso carico l'array di colpi vero
 	for(int i=0; i<colpi; i++){
-		caricatore[i] = caricaColpo();
+		// mi scorro l'array deterministico
+		int indiceRandomico = rand() % colpi;
+		// scorro l'array di colpi
+		if(giaInserito(indici, i, indiceRandomico))
+			i--;			// soluzione sporca, al limite implementa un while
+		else
+			caricatore[indiceRandomico] = deterministico[i];
 	}
 }
+
+
+bool giaInserito(int indici[], int dim, int randomico){
+	for(int i=0; i<dim; i++){
+		if(indici[i]==randomico)
+			return true;
+	}
+}
+
+
+
+
+
+
 
