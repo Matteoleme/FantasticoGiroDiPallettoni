@@ -49,6 +49,8 @@ void stampaProiettili(Fucile fucile);
 
 void stampaCaricatore(bool* caricatore, int d);
 
+void turnoAi(Partita &partita);
+
 int main(){
 	// inizializzazione partita
 	Partita partita;
@@ -71,6 +73,11 @@ int main(){
 	int buffer;
 	do{
 		inizializzaRound(partita, round+2);
+		// gestire turno utente
+
+		// turno ai
+		turnoAi(partita);
+		
 		round++;
 		stampaCaricatore(partita.fucile.caricatore, partita.fucile.colpiTotali);
 		cin >> buffer;
@@ -172,4 +179,17 @@ void stampaCaricatore(bool* caricatore, int d){
 		cout << "[" << caricatore[i] << "]";
 	}
 	cout << endl;
+}
+
+void turnoAi(Partita &partita){
+	int probabilita = rand() % 100;
+	if(probabilita<5){
+		if(rand()%2)
+			// spara a me
+		else
+			// spara a te
+	}
+	else{
+		// in base ai colpi
+	}
 }
